@@ -156,7 +156,7 @@ const UploadMovie = () => {
                 name="imdbId"
                 value={formData.imdbId}
                 onChange={handleChange}
-                placeholder="tt4154796"
+                placeholder="e.g. tt4154796"
                 className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 outline-none focus:border-red-500"
               />
             </div>

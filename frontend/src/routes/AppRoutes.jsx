@@ -9,6 +9,8 @@ import UploadMovie from "../pages/Admin/UploadMovie";
 import Categorywise from "../pages/Categorywise";
 import NavBar from "../components/NavBar";
 import { useState } from "react";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 
 const AppRoutes = () => {
 
@@ -27,6 +29,8 @@ const AppRoutes = () => {
       <Route path="/admin/update/:movieId" element={<UpdateMovie/>} />
       <Route path="/movie/category/:categoryName" element={<Categorywise searchTerm={searchTerm}/>} />
 
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
     </Routes>
     </>
   );

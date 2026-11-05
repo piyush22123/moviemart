@@ -30,7 +30,7 @@ const MovieCard = ({ movie }) => {
 
   return (
 
-    <div className="bg-[#282A28] rounded-[28px] p-3 border border-white/5 overflow-hidden hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-red-500/20">
+    <div className="bg-[#111111] rounded-[28px] p-3 border border-white/5 overflow-hidden hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-red-500/20">
 
       {/* Poster */}
       <div className="relative overflow-hidden rounded-2xl">

@@ -13,12 +13,14 @@ const Profile = ({ user }) => {
     try {
       const res = await api.post("/api/auth/logout");
 
+    // Notify Navbar that the user has logged out.
+    window.dispatchEvent(new Event("authChanged"));
+
+
       toast.success(
         res.data.message || "Logged out"
       );
-
-      res.clearCookie('token');
-
+      setOpen(false);
       navigate("/login");
 
     } catch (error) {

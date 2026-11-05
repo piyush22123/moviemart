@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios.js";
 import toast from "react-hot-toast";
 import Loader from "../components/Loader.jsx";
+import { Eye, EyeOff } from "lucide-react";
 
 const Register = () => {
+  const [hide, setHide] = useState(true);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -148,15 +150,24 @@ const Register = () => {
           {/* Password */}
           <div>
             <label className="block mb-2 text-sm text-zinc-300">Password</label>
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
-              className="text-white! w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 outline-none focus:border-red-500 transition-all"
-            />
+            <div className="relative">
+              <input
+                type={hide ? "password" : "text"}
+                name="password"
+                placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
+                className="text-white! w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 outline-none focus:border-red-500 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setHide(!hide)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-500"
+                aria-label={hide ? "Show password" : "Hide password"}
+              >
+                {hide ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
+            </div>
           </div>
 
           {/* Role */}

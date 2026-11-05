@@ -5,12 +5,6 @@ const { uploadFile } = require("../services/storage.service");
 const createMovie = async(req, res) => {
     const token = req.cookies.token;
 
-    if(!token){
-        return res.status(401).json({
-            message: "Unauthorized"
-        })
-    }
-
     try{
         let {
             movieName, 
@@ -112,20 +106,76 @@ async function getMovie(req, res) {
 
 
 // get all movies
-async function getAllMovie(req, res){
-    
-    const movies = await movieModel.find().limit(10) // to only fetch 10 movie at a time
+// Get all movies with backend pagination, search, and optional category filtering
+async function getAllMovie(req, res) {
+    try {
+        let { page = 1, limit = 12, search = "", category } = req.query;
 
-    if (!movies) {
-        return res.status(404).json({
-            message: "Movies not found"
+        page = Number.parseInt(page, 10);
+        limit = Number.parseInt(limit, 10);
+
+        // Validate pagination parameters
+        if (!Number.isInteger(page) || page < 1) {
+            return res.status(400).json({
+                message: "Page must be a positive integer"
+            });
+        }
+
+        if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+            return res.status(400).json({
+                message: "Limit must be between 1 and 100"
+            });
+        }
+
+        // Build MongoDB filter
+        const filter = {};
+
+        if (search.trim()) {
+            filter.movieName = {
+                $regex: search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                $options: "i"
+            };
+        }
+
+        if (category && category.trim()) {
+            const escapedCategory = category.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+            filter.category = {
+                $in: [new RegExp(`^${escapedCategory}$`, "i")]
+            };
+        }
+
+        // Count matching movies before pagination
+        const totalMovies = await movieModel.countDocuments(filter);
+
+        // Fetch only movies for the requested page
+        const movies = await movieModel.find(filter)
+            .sort({ _id: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalMovies / limit);
+
+        return res.status(200).json({
+            message: "Movies fetched successfully",
+            movies,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalMovies,
+                limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
+        });
+
+    } catch (err) {
+        console.error("Error fetching movies:", err);
+
+        return res.status(500).json({
+            message: "Failed to fetch movies"
         });
     }
-
-    return res.status(200).json({
-        message: "Movies fetched successfully",
-        movies: movies,
-    })
 }
 
 
@@ -258,28 +308,79 @@ async function deleteMovie(req, res){
 }
 
 
-
 async function getMoviesByCategory(req, res) {
     try {
-
         const { categoryName } = req.params;
+        let { page = 1, limit = 12, search = "" } = req.query;
 
-        const movies = await movieModel.find({
+        page = Number.parseInt(page, 10);
+        limit = Number.parseInt(limit, 10);
+
+        // Validate pagination parameters
+        if (
+            !Number.isInteger(page) || page < 1 ||
+            !Number.isInteger(limit) || limit < 1 || limit > 100
+        ) {
+            return res.status(400).json({
+                message: "Invalid page or limit. Page must be positive and limit must be between 1 and 100."
+            });
+        }
+
+        // Escape special regex characters
+        const escapedCategory = categoryName.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+        );
+
+        // Filter by category
+        const filter = {
             category: {
-                $in: [new RegExp(`^${categoryName}$`, "i")]
+                $in: [new RegExp(`^${escapedCategory}$`, "i")]
             }
-        });
+        };
+
+        // Add search filter if search term exists
+        if (search.trim()) {
+            const escapedSearch = search.trim().replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&"
+            );
+
+            filter.movieName = {
+                $regex: escapedSearch,
+                $options: "i"
+            };
+        }
+
+        // Count matching movies before pagination
+        const totalMovies = await movieModel.countDocuments(filter);
+
+        // Fetch movies for the requested page
+        const movies = await movieModel.find(filter)
+            .sort({ _id: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalMovies / limit);
 
         return res.status(200).json({
             message: "Movies fetched successfully",
-            total: movies.length,
-            movies
+            movies,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalMovies,
+                limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            }
         });
 
     } catch (err) {
+        console.error("Error fetching movies by category:", err);
 
         return res.status(500).json({
-            message: err.message
+            message: "Failed to fetch movies by category"
         });
     }
 }

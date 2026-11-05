@@ -5,6 +5,8 @@ import { Plus } from "lucide-react";
 import api from "../../api/axios";
 import AdminMovieCard from "../../components/AdminMovieCard";
 import Loader from "../../components/Loader";
+import toast from "react-hot-toast";
+
 
 const Dashboard = ({searchTerm}) => {
 
@@ -42,6 +44,12 @@ const Dashboard = ({searchTerm}) => {
   }, []);
 
   const deleteMovie = async (movieId) => {
+    // send window popup to confirm deletion
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this movie? This action cannot be undone."
+    );
+    // if not confirmed then return
+    if(!confirmDelete) return;
 
     try {
 
@@ -52,8 +60,8 @@ const Dashboard = ({searchTerm}) => {
       );
 
     } catch (error) {
-
-      console.log(error);
+      toast.error("Failed to delete move.")
+      console.log("Failed to delete movie:", error);
     }
   };
 
@@ -65,7 +73,7 @@ const Dashboard = ({searchTerm}) => {
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10">
       {/* Header */}
-      <div className="pt-20 flex items-center justify-between mb-10">
+      <div className="pt-30 flex items-center justify-between mb-10">
 
         <h1 className="text-4xl font-bold">
           Admin Dashboard
