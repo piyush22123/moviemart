@@ -1,6 +1,6 @@
 import './App.css'
 import Footer from './components/Footer'
-import AppRoutes from './routes/Approutes'
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
 
