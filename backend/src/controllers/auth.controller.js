@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
     username,
     email,
     password: hashed,
-    role,
+    role: "user",
   });
 
   // generate tokens and store refreshtoken in user database
@@ -44,6 +44,7 @@ const registerUser = async (req, res) => {
     secure: true,
     sameSite: "none",
     maxAge: 15 * 60 * 1000,
+    path: "/",
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -51,6 +52,7 @@ const registerUser = async (req, res) => {
     sameSite: "none",
     secure: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
   });
 
   return res.status(200).json({
@@ -94,6 +96,7 @@ const loginUser = async (req, res) => {
     secure: true,
     sameSite: "none",
     maxAge: 15 * 60 * 1000,
+    path: "/",
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -101,6 +104,7 @@ const loginUser = async (req, res) => {
     secure: true,
     sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
   });
 
   return res.status(200).json({
@@ -156,7 +160,7 @@ const getMe = async (req, res) => {
   try {
     return res.status(200).json({
       user: {
-        id: req.user._id,
+        id: req.user.id,
         username: req.user.username,
         email: req.user.email,
         role: req.user.role,
@@ -203,6 +207,7 @@ const refreshToken = async (req, res) => {
       httpOnly: true,
       sameSite: "none",
       secure: true,
+      path: "/",
       maxAge: 15 * 60 * 1000,
     });
 
