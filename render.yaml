@@ -3,7 +3,7 @@ services:
     name: moviemart
     runtime: node
     plan: free
-    buildCommand: npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend install
+    buildCommand: npm --prefix frontend install && node frontend/node_modules/vite/bin/vite.js build && npm --prefix backend install
     startCommand: npm --prefix backend start
     envVars:
       - key: NODE_ENV
